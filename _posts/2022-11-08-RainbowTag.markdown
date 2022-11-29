@@ -3,14 +3,14 @@ layout: post
 title:  "RainbowTag Fiducal Marker"
 date:   2022-11-08 17:45:33 -0500
 categories: projects
-permalink: /RainbowTag/
+permalink: /rainbowtag/
 image1: /assets/images/marker.svg
 image2: /assets/images/demo_images.svg
 ---
 
 ## In a nutshell
 
-*RainbowTag* ([*see paper here*](https://ieeexplore.ieee.org/document/9743123), [*download code here*](https://github.com/juloss/rainbowtag)) is a color-based fiducial marker together with a detection algorithm that is robust to (motion) blur and marker deformations. Below is an example marker. Although lighting conditions affect color appearance, the RainbowTag detection algorithm is designed work reliably in everyday lighting conditions (e.g.,  lightbulbs with various color temperature or sunlight). 
+*RainbowTag* ([*paper here*](https://ieeexplore.ieee.org/document/9743123), [*code here*](https://github.com/juloss/rainbowtag), [*slides here*]({{ site.url }}/assets/slides/RT_short.odp)) is a color-based fiducial marker together with a detection algorithm that is robust to (motion) blur and marker deformations. Below is an example marker. Although lighting conditions affect color appearance, the RainbowTag detection algorithm is designed work reliably in everyday lighting conditions (e.g.,  lightbulbs with various color temperature or sunlight). 
 
 ![RainbowTag marker]({{ page.image1 }}){:.centered}{:width="20%"} 
 
@@ -115,7 +115,4 @@ Rows are described from top to bottom and from left to right. The left side of a
 *Row 2:* 
 **(1)** High blur: $$v = 0.45 \frac{m}{s}$$, shutter speed $$=\frac{1}{15}s$$, $$d=2.1m$$, 2700K lightbulb.
 
-
-
-<br/><br/>
-# How to use RainbowTag
+etc.
