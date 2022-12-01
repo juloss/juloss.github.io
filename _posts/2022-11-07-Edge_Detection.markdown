@@ -43,7 +43,7 @@ so
 $$\begin{align}
 \theta = \frac{1}{2} \arctan \frac{2 \mathbf{u} \cdot \mathbf{v}}{\mathbf{u} \cdot \mathbf{u} - \mathbf{v} \cdot \mathbf{v}}.\label{final}
 \end{align}$$
-Let $$\theta_*$$ be a solution of \eqref{final}. We can see from \eqref{two_theta} and recalling that $$\tan$$ has a periodicity of $$\pi$$ that $$\theta_* + \frac{\pi}{2}$$ is also a solution. If these solutions are not equal, then one of $$F(\theta_*)$$ and $$F(\theta_* + \pi)$$ must be a minimum and the other maximum.
+Let $$\theta_*$$ be a solution of \eqref{final}. We can see from \eqref{two_theta} and recalling that $$\tan$$ has a periodicity of $$\pi$$ that $$\theta_* + \frac{\pi}{2}$$ is also a solution. If these solutions are not equal, then one of $$F(\theta_*)$$ and $$F(\theta_* + \frac{\pi}{2})$$ must be a minimum and the other maximum.
 
 
 
