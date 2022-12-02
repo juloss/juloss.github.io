@@ -24,18 +24,38 @@ $$\begin{align}
 = &\big((\epsilon \cos\theta) \cdot \mathbf{u} + (\epsilon \sin\theta) \cdot \mathbf{v}\big) \cdot \big((\epsilon \cos\theta) \cdot \mathbf{u} + (\epsilon \sin\theta) \cdot \mathbf{v}\big) \\
 = &\epsilon^2 \bigl((\cos^2\theta) \cdot (\mathbf{u} \cdot \mathbf{u}) + (2 \cos\theta \sin\theta) \cdot (\mathbf{u} \cdot \mathbf{v}) + (\sin^2\theta) \cdot (\mathbf{v} \cdot \mathbf{v}) \bigr)\label{maximize_this}.
 \end{align}$$
-<center>
-<video width="80%" muted autoplay loop poster preload controls>
-    <source src="../color_difference.mp4" type="video/mp4">
-</video>
-</center>
 
-We wish to maximize \eqref{maximize_this}. Since $$\epsilon$$ is a constant, we can drop it and maximize 
+We wish to maximize \eqref{maximize_this}. Since $$\epsilon$$ is a constant, we can drop it ($$\epsilon = 1$$) and maximize 
 
 $$F(\theta) = (\cos^2\theta) \cdot (\mathbf{u} \cdot \mathbf{u}) + (2 \cos\theta \sin\theta) \cdot (\mathbf{u} \cdot \mathbf{v}) + (\sin^2\theta) \cdot (\mathbf{v} \cdot \mathbf{v})$$
 
 instead.
+<style>
+figure {
+  border: 1px #cccccc solid;
+  padding: 4px;
+  margin: auto;
+}
 
+figcaption {
+  background-color: grey;
+  color: white;
+  font-style: italic;
+  padding: 2px;
+  text-align: left;
+}
+</style>
+<figure>
+<center>
+    <video width="80%" muted autoplay loop poster preload controls>
+        <source src="../color_difference.mp4" type="video/mp4">
+    </video>
+</center>
+<figcaption>Fig. 1. Function \(F(\theta)\) plotted for \(\theta \in [0^{\circ}, 360^{\circ})\),
+\(\mathbf{u}=\mathbf{[}1 \;\; .9 \;\; .6\mathbf{]}^T\), and \(\mathbf{v}=\mathbf{[}.2 \;\; .3 \;\; .4\mathbf{]}^T\). As we move around \((0, 0)\) at distance \(1\), the blue curve is the value of \(F(\theta)\).
+</figcaption>
+</figure>
+<p></p>
 Using the identities $$\cos^2\theta =\frac{1}{2} (1 + \cos2 \theta)$$, $$2 \sin\theta \cos\theta = \sin2 \theta$$, and $$\sin^2\theta =\frac{1}{2} (1 - \cos2 \theta)$$, we obtain
 
 $$\begin{align}
@@ -51,8 +71,6 @@ so
 $$\begin{align}
 \theta = \frac{1}{2} \arctan \frac{2 \mathbf{u} \cdot \mathbf{v}}{\mathbf{u} \cdot \mathbf{u} - \mathbf{v} \cdot \mathbf{v}}.\label{final}
 \end{align}$$
-
-Let's understand the solutions of equation \eqref{final}.
 
 Let $$\theta^*$$ be a solution of \eqref{final}. We can see from \eqref{two_theta} and recalling that $$\tan$$ has a periodicity of $$\pi$$ that $$\theta^* + \frac{\pi}{2}$$ is also a solution. If these solutions are not equal, then one of $$F(\theta^*)$$ and $$F(\theta^* + \frac{\pi}{2})$$ must be a minimum and the other maximum.
 
