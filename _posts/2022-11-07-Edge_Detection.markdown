@@ -1,19 +1,22 @@
 ---
 layout: post
-title:  "More Continuous Edge Detection"
+title:  "Continuous Colour Edge Detection"
 published: true
 date:   2022-11-07 17:45:33 -0500
 categories: projects
 permalink: /continuous_color_edge/
 ---
 
+### Introduction
 
-### Algorithm description - Di Zenzo's algorithm
+Blabla.
 
-Our algorithm is a variation on [Di Zenzo's](https://www.sciencedirect.com/science/article/abs/pii/0734189X86902239) approach, so we qucikly review it here for the special case of 3 channel images. Let $$f: \mathbf{R}^2 \rightarrow \mathbf{R}^3$$ be a $$3$$-channel image. We define the color difference between image locations $$a$$ to $$b$$ ($$a, b \in \mathbf{R}^2$$) as the squared Euclidean length of the vector from $$f(a)$$ to $$f(b)$$, i.e., as $$\lVert f(b) - f(a) \rVert_2^2$$. 
+### Part 1 - Di Zenzo's color gradient
 
-Assume we are at point $$(x_0, y_0)$$ in the image, and we want to determine in which direction $$f$$ changes the most. Let $$\theta$$ be a direction $$\epsilon$$ be a small step size. If we move from $$(x_0, y_0)$$ in the direction $$\theta$$ an $$\epsilon$$ amount then we get $$(x_0 + \epsilon \cos\theta, y_0 + \epsilon \sin\theta)$$.
-We approximate the color difference between the two points using a linear Taylor approximation. Let the partial derivatives of $$f$$ with respect to $$x$$ and $$y$$ evaluated at $$(x_0, y_0)$$ be the vectors $$\mathbf{u} = \left. \frac{\partial f}{\partial x} \right|_{x_0, y_0}$$ and $$\mathbf{v} = \left. \frac{\partial f}{\partial y} \right|_{x_0, y_0}$$, respectively. Then
+Our algorithm uses [Di Zenzo's](https://www.sciencedirect.com/science/article/abs/pii/0734189X86902239) method of computing the direction of maximum color change at every point in the image. We briefly review his algorithm here for the special case of 3 channel images. Let $$f: \mathbf{R}^2 \rightarrow \mathbf{R}^3$$ be a $$3$$-channel image. We define the color difference between image locations $$a$$ and $$b$$ ($$a, b \in \mathbf{R}^2$$) as the squared Euclidean distance between $$f(a)$$ and $$f(b)$$, i.e., as $$\lVert f(b) - f(a) \rVert_2^2$$. 
+
+Assume we are at point $$(x_0, y_0)$$ in the image, and we want to determine in which direction $$f$$ changes the most. Let $$\theta$$ be a direction and $$\epsilon$$ a small step size. If we move from $$(x_0, y_0)$$ in the direction $$\theta$$ an $$\epsilon$$ amount then we arrive at $$(x_0 + \epsilon \cos\theta, y_0 + \epsilon \sin\theta)$$.
+We approximate the color difference between $$(x_0, y_0)$$ and $$(x_0 + \epsilon \cos\theta, y_0 + \epsilon \sin\theta)$$ using a linear Taylor approximation. Let the partial derivatives of $$f$$ with respect to $$x$$ and $$y$$ evaluated at $$(x_0, y_0)$$ be the vectors $$\mathbf{u} = \left. \frac{\partial f}{\partial x} \right|_{x_0, y_0}$$ and $$\mathbf{v} = \left. \frac{\partial f}{\partial y} \right|_{x_0, y_0}$$, respectively. Then
 
 $$\begin{align}
 \big\lVert f(x_0, y_0) - f(x_0 + &\epsilon \cos\theta, y_0 + \epsilon \sin\theta) \big\rVert_2^2\\
@@ -21,14 +24,19 @@ $$\begin{align}
 = &\big((\epsilon \cos\theta) \cdot \mathbf{u} + (\epsilon \sin\theta) \cdot \mathbf{v}\big) \cdot \big((\epsilon \cos\theta) \cdot \mathbf{u} + (\epsilon \sin\theta) \cdot \mathbf{v}\big) \\
 = &\epsilon^2 \bigl((\cos^2\theta) \cdot (\mathbf{u} \cdot \mathbf{u}) + (2 \cos\theta \sin\theta) \cdot (\mathbf{u} \cdot \mathbf{v}) + (\sin^2\theta) \cdot (\mathbf{v} \cdot \mathbf{v}) \bigr)\label{maximize_this}.
 \end{align}$$
+<center>
+<video width="80%" muted autoplay loop poster preload controls>
+    <source src="../color_difference.mp4" type="video/mp4">
+</video>
+</center>
 
-We want to maximize \eqref{maximize_this}. Since $$\epsilon$$ is a constant, we can drop it and maximize 
+We wish to maximize \eqref{maximize_this}. Since $$\epsilon$$ is a constant, we can drop it and maximize 
 
 $$F(\theta) = (\cos^2\theta) \cdot (\mathbf{u} \cdot \mathbf{u}) + (2 \cos\theta \sin\theta) \cdot (\mathbf{u} \cdot \mathbf{v}) + (\sin^2\theta) \cdot (\mathbf{v} \cdot \mathbf{v})$$
 
 instead.
 
-Using the identities $$\cos^2\theta =\frac{1}{2} (1 + \cos2 \theta)$$, $$2 \sin\theta \cos\theta = \sin2 \theta$$, and $$\sin^2\theta =\frac{1}{2} (1 - \cos2 \theta)$$, we get
+Using the identities $$\cos^2\theta =\frac{1}{2} (1 + \cos2 \theta)$$, $$2 \sin\theta \cos\theta = \sin2 \theta$$, and $$\sin^2\theta =\frac{1}{2} (1 - \cos2 \theta)$$, we obtain
 
 $$\begin{align}
 F(\theta) = \frac{1}{2} \big( (\mathbf{u} \cdot \mathbf{u} + \mathbf{v} \cdot \mathbf{v}) + (\cos2\theta) \cdot (\mathbf{u} \cdot \mathbf{u} - \mathbf{v} \cdot \mathbf{v}) + (2 \sin2\theta ) \cdot (\mathbf{u} \cdot \mathbf{v})\big)\label{double_angle}.
@@ -43,7 +51,10 @@ so
 $$\begin{align}
 \theta = \frac{1}{2} \arctan \frac{2 \mathbf{u} \cdot \mathbf{v}}{\mathbf{u} \cdot \mathbf{u} - \mathbf{v} \cdot \mathbf{v}}.\label{final}
 \end{align}$$
-Let $$\theta_*$$ be a solution of \eqref{final}. We can see from \eqref{two_theta} and recalling that $$\tan$$ has a periodicity of $$\pi$$ that $$\theta_* + \frac{\pi}{2}$$ is also a solution. If these solutions are not equal, then one of $$F(\theta_*)$$ and $$F(\theta_* + \frac{\pi}{2})$$ must be a minimum and the other maximum.
+
+Let's understand the solutions of equation \eqref{final}.
+
+Let $$\theta^*$$ be a solution of \eqref{final}. We can see from \eqref{two_theta} and recalling that $$\tan$$ has a periodicity of $$\pi$$ that $$\theta^* + \frac{\pi}{2}$$ is also a solution. If these solutions are not equal, then one of $$F(\theta^*)$$ and $$F(\theta^* + \frac{\pi}{2})$$ must be a minimum and the other maximum.
 
 
 

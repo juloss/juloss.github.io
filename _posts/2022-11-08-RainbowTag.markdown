@@ -10,7 +10,7 @@ image2: /assets/images/demo_images.svg
 
 ## In a nutshell
 
-*RainbowTag* ([*paper here*](https://ieeexplore.ieee.org/document/9743123), [*code here*](https://github.com/juloss/rainbowtag), [*slides here*]({{ site.url }}/assets/slides/RT_short.odp)) is a color-based fiducial marker together with a detection algorithm that is robust to (motion) blur and marker deformations. Below is an example marker. Although lighting conditions affect color appearance, the RainbowTag detection algorithm is designed work reliably in everyday lighting conditions (e.g.,  lightbulbs with various color temperature or sunlight). 
+*RainbowTag* ([*paper here*](https://ieeexplore.ieee.org/document/9743123), [*code here*](https://github.com/juloss/rainbowtag), [*download slides*]({{ site.url }}/assets/slides/RT_short.odp)) is a color-based fiducial marker together with a detection algorithm that is robust to (motion) blur and marker deformations. Below is an example marker. Although lighting conditions affect color appearance, the RainbowTag detection algorithm is designed work reliably in everyday lighting conditions (e.g.,  lightbulbs with various color temperature or sunlight). 
 
 ![RainbowTag marker]({{ page.image1 }}){:.centered}{:width="20%"} 
 
