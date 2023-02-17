@@ -33,7 +33,7 @@ Works well when (see experimental demonstration in [*paper*](https://ieeexplore.
 
 ## Demos
 
-##### *Note:* *(1)* All markers (RainbowTag, Aruco, ChromaTag) have area $$ 26.5 \pm 0.5 $$cm. In the videos and images below, RainbowTag markers look larger than Aruco and ChromaTag markers because Aruco and ChromaTag have a white frame around them that is not visible on the white background. RainbowTag uses a black frame which is visible. *(2)* Four detector algorithms are running in the videos and images: RainbowTag, Aruco 6x6, Aruco 4x4, ChromaTag.
+##### *Note:* *(1)* All markers (RainbowTag, Aruco, ChromaTag) have area $$ 26.5 \pm 0.5 \text{cm}^2$$. In the videos and images below, RainbowTag markers look larger than Aruco and ChromaTag markers because Aruco and ChromaTag have a white frame around them that is not visible on the white background. RainbowTag uses a black frame which is visible. *(2)* Four detector algorithms are running in the videos and images: RainbowTag, Aruco 6x6, Aruco 4x4, ChromaTag.
 
 # Detection Videos
 

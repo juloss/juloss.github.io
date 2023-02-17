@@ -1,85 +1,175 @@
 ---
 layout: post
 title:  "Continuous Colour Edge Detection"
-published: true
+published: false
 date:   2022-11-07 17:45:33 -0500
 categories: projects
 permalink: /continuous_color_edge/
 ---
 
-### Introduction
+### TO DO
+- Describe coordinate system and angle conventions
+- Describe why canny does not have polarity problem
+- Image is to positive reals?
+- Define edgel: https://en.wiktionary.org/wiki/edgel#:~:text=edgel%20(plural%20edgels),as%20the%20edge%20of%20something.
+- Give reference for reflectance model, light source intensity
+- Don't use tuple notation, switch to vectors everywhere
+- Show examples of log thresholding working better?
+- Discuss and demonstrate what happens thresholding linear images: if threshold is small, there should
+  be a lot of edges detected in bright parts of the image
 
-Blabla.
 
-### Part 1 - Di Zenzo's color gradient
 
-Our algorithm uses [Di Zenzo's](https://www.sciencedirect.com/science/article/abs/pii/0734189X86902239) method of computing the direction of maximum color change at every point in the image. We briefly review his algorithm here for the special case of 3 channel images. Let $$f: \mathbf{R}^2 \rightarrow \mathbf{R}^3$$ be a $$3$$-channel image. We define the color difference between image locations $$a$$ and $$b$$ ($$a, b \in \mathbf{R}^2$$) as the squared Euclidean distance between $$f(a)$$ and $$f(b)$$, i.e., as $$\lVert f(b) - f(a) \rVert_2^2$$. 
+### Color change polarities
 
-Assume we are at point $$(x_0, y_0)$$ in the image, and we want to determine in which direction $$f$$ changes the most. Let $$\theta$$ be a direction and $$\epsilon$$ a small step size. If we move from $$(x_0, y_0)$$ in the direction $$\theta$$ an $$\epsilon$$ amount then we arrive at $$(x_0 + \epsilon \cos\theta, y_0 + \epsilon \sin\theta)$$.
-We approximate the color difference between $$(x_0, y_0)$$ and $$(x_0 + \epsilon \cos\theta, y_0 + \epsilon \sin\theta)$$ using a linear Taylor approximation. Let the partial derivatives of $$f$$ with respect to $$x$$ and $$y$$ evaluated at $$(x_0, y_0)$$ be the vectors $$\mathbf{u} = \left. \frac{\partial f}{\partial x} \right|_{x_0, y_0}$$ and $$\mathbf{v} = \left. \frac{\partial f}{\partial y} \right|_{x_0, y_0}$$, respectively. Then
+The direction of maximum color change $$\theta^*$$ obtained above is in the range $$[0, \pi)$$. The fact that $$F(\theta^*) = F(\theta^* + \pi)$$ can cause problems when we connect the edge points to identify curves in the image. We demonstrate this with an example in Figure 2, left side. We assume for simplicity that colors are encoded using linear RGB. A part of an image is shown where a black line passes through over a white background. Therefore that all $$3$$ channles of a single pixel have the same value.
 
-$$\begin{align}
-\big\lVert f(x_0, y_0) - f(x_0 + &\epsilon \cos\theta, y_0 + \epsilon \sin\theta) \big\rVert_2^2\\
-\approx & \big\lVert (\epsilon \cos\theta) \cdot \mathbf{u} + (\epsilon \sin\theta) \cdot \mathbf{v} \big\rVert_2^2\\
-= &\big((\epsilon \cos\theta) \cdot \mathbf{u} + (\epsilon \sin\theta) \cdot \mathbf{v}\big) \cdot \big((\epsilon \cos\theta) \cdot \mathbf{u} + (\epsilon \sin\theta) \cdot \mathbf{v}\big) \\
-= &\epsilon^2 \bigl((\cos^2\theta) \cdot (\mathbf{u} \cdot \mathbf{u}) + (2 \cos\theta \sin\theta) \cdot (\mathbf{u} \cdot \mathbf{v}) + (\sin^2\theta) \cdot (\mathbf{v} \cdot \mathbf{v}) \bigr)\label{maximize_this}.
-\end{align}$$
+We will desribe a method to chain edge points together later. A reasonable boundary between the right side of the black line could be the chain of points $$p_1$$, $$p_2$$, $$p_3$$, $$p_4$$, $$p_5$$, $$p_6$$, $$p_7$$. Assume that we are at $$p_3$$ and we are trying to choose between $$p_4$$ and $$p_8$$ as the next point. Both points have the same direction for the maximum color change, $$\theta^*_4 = \theta^*_8 =  135^\circ$$. (Recall that the $$\theta$$-s are in the range $$[0^\circ, 180)$$.) The points also have the same  color change magnitude $$\sqrt{F(\theta^*_4)} = \sqrt{F(\theta^*_8)}$$. But it looks like $$p_8$$ should belong the boundary of the black line on the left side. The problem is that we do know that the maximum color change at $$p_4$$ and $$p_8$$ is along a line passing at an angle of $$135^\circ$$, but we do not know whether the change is of the ``same type.'' In our example, the color change at $$p_4$$ and $$p_8$$ have different types. At $$p_8$$, color changes from dark to light because there are more black pixels below the diagonal of the red box. At $$p_4$$, color changes from light to dark because there are more white pixels below the diagonal of the blue box. We could describe the color change as dark to light and light to dark because we use only black and white in this example. However, for color images in general the color change at a boundary needs a more detailed description.
 
-We wish to maximize \eqref{maximize_this}. Since $$\epsilon$$ is a constant, we can drop it ($$\epsilon = 1$$) and maximize 
-
-$$F(\theta) = (\cos^2\theta) \cdot (\mathbf{u} \cdot \mathbf{u}) + (2 \cos\theta \sin\theta) \cdot (\mathbf{u} \cdot \mathbf{v}) + (\sin^2\theta) \cdot (\mathbf{v} \cdot \mathbf{v})$$
-
-instead.
 <style>
-figure {
-  border: 1px #cccccc solid;
-  padding: 4px;
-  margin: auto;
+.row {
+  display: flex;
+}
+.column {
+  flex: 40%;
+  padding: 30px;
+}
+.vertical_space {
+  padding: 30px;
 }
 
-figcaption {
-  background-color: grey;
-  color: white;
-  font-style: italic;
-  padding: 2px;
-  text-align: left;
-}
 </style>
 <figure>
-<center>
-    <video width="80%" muted autoplay loop poster preload controls>
-        <source src="../color_difference.mp4" type="video/mp4">
-    </video>
-</center>
-<figcaption>Fig. 1. Function \(F(\theta)\) plotted for \(\theta \in [0^{\circ}, 360^{\circ})\),
-\(\mathbf{u}=\mathbf{[}1 \;\; .9 \;\; .6\mathbf{]}^T\), and \(\mathbf{v}=\mathbf{[}.2 \;\; .3 \;\; .4\mathbf{]}^T\). As we move around \((0, 0)\) at distance \(1\), the blue curve is the value of \(F(\theta)\).
+<div class="row">
+  <div class="column">
+      <img src="/assets/drawings/polarities_bw.svg" alt="Polarity 1" style="width:100%;">
+  </div>
+  <div class="vertical_space">
+  </div>
+  <div class="column">
+      <img src="/assets/drawings/polarities_rg.svg" alt="Polarity 2" style="width:100%;">
+  </div>
+</div>
+<figcaption>Fig. 2. <i>Left:</i> Both arrows point the same direction. Not good.
+<i>Right</i>
 </figcaption>
 </figure>
 <p></p>
-Using the identities $$\cos^2\theta =\frac{1}{2} (1 + \cos2 \theta)$$, $$2 \sin\theta \cos\theta = \sin2 \theta$$, and $$\sin^2\theta =\frac{1}{2} (1 - \cos2 \theta)$$, we obtain
 
-$$\begin{align}
-F(\theta) = \frac{1}{2} \big( (\mathbf{u} \cdot \mathbf{u} + \mathbf{v} \cdot \mathbf{v}) + (\cos2\theta) \cdot (\mathbf{u} \cdot \mathbf{u} - \mathbf{v} \cdot \mathbf{v}) + (2 \sin2\theta ) \cdot (\mathbf{u} \cdot \mathbf{v})\big)\label{double_angle}.
+<style>
+span.keeptogether {
+  white-space: nowrap ;
+}
+</style>
+
+### Light intensity invariance, gamma compression, and Fechner's law
+
+Let's restrict our attention for now to single channel images $$f: \mathbf{R}^2 \rightarrow \mathbf{R^+}$$. We wish to compute edgels but independently of light source intensity. That is, we want edgels to depend only on (or at least as much as possible) the material properties of the objects in the scene. We make the following simplifying assumption. If light source intensity changes by a factor of $$\alpha$$ (and nothing else changes), then $$f$$ becomes $$\alpha f$$. 
+
+Let $$\mathbf{a} \in \mathbf{R}^2$$ be a pixel location. Consider the gradient $$\nabla f(\mathbf{a})$$ of $$f$$ at $$\mathbf{a}$$, i.e., the vector whose direction indicates the direction of maximum pixel intensity change, and whose magnitude is the size of this change.
+One way to measure edgel strength in an image $$f$$ would be to define it as $$\lVert \nabla f(\mathbf{a}) \rVert$$. However, then edgel strength in the image $$\alpha f$$ would become $$\lVert \nabla \alpha f(\mathbf{a}) \rVert = \alpha \lVert \nabla f(\mathbf{a}) \rVert$$, and we would not have invariance.
+
+Instead, we measure edgel strength at point $$\mathbf{a}$$ in an image $$\alpha f$$ as follows. We measure image intensity at $$\mathbf{a}$$, which is $$\alpha f(\mathbf{a})$$. Then we move from $$\mathbf{a}$$ in the direction of maximum intensity change a unit length amount, i.e., we move to $$\mathbf{a} + \frac{\nabla \alpha f(\mathbf{a})}{\lVert \nabla \alpha f(\mathbf{a}) \rVert} = \mathbf{a} + \frac{\nabla f(\mathbf{a})}{\lVert \nabla f(\mathbf{a}) \rVert}$$, and measure the intensity at that point, which is $$\alpha f\left(\mathbf{a} + \frac{\nabla f(\mathbf{a})}{\lVert \nabla f(\mathbf{a}) \rVert}\right)$$. Then we former intensity with the latter to obtain edgel strength
+$$
+\begin{align}
+E(\alpha f) &= \frac{\alpha f\left(\mathbf{a} + \frac{\nabla f(\mathbf{a})}{\lVert \nabla f(\mathbf{a}) \rVert}\right)}{\alpha f(\mathbf{a})}\\
+&= 
+\frac{f\left(\mathbf{a} + \frac{\nabla f(\mathbf{a})}{\lVert \nabla f(\mathbf{a}) \rVert}\right)}{f(\mathbf{a})}\\
+& \approx \frac{f(\mathbf{a}) + \nabla f(\mathbf{a}) \cdot \frac{\nabla f(\mathbf{a})}{\lVert \nabla f(\mathbf{a}) \rVert}}{f(\mathbf{a})}\label{linear_neighborhood}\\
+& = \frac{f(\mathbf{a}) + \lVert \nabla f(\mathbf{a}) \rVert}{f(\mathbf{a})},\label{fraction_form}
 \end{align}
 $$
+where expression \eqref{linear_neighborhood} is obtained using a first-order Taylor approximation at $$\mathbf{a}$$. Note that $$E$$ does not depend on $$\alpha$$, i.e., edge strength is independent of light intensity. A straighforward (but not very good in practice because of noise) way to find edgels using $$E$$ is to set a threshold $$t$$ and keep only those points as edges for which $$E(\alpha f) \geq t$$. Note that we do these operations on linear images (i.e., no gamma compression). Let's see a connection between this approach and gradient thresholding approaches applied to gamma compressed images. Let's take the log of both sides of
+$$\frac{f(\mathbf{a}) + \lVert \nabla f(\mathbf{a}) \rVert}{f(\mathbf{a})} \geq t$$ to get
 
-Setting $$\frac{d F}{d \theta} = 0$$ gives
 $$\begin{align}
-\tan 2\theta = \frac{2 \mathbf{u} \cdot \mathbf{v}}{\mathbf{u} \cdot \mathbf{u} - \mathbf{v} \cdot \mathbf{v}}\label{two_theta}
-,\end{align}$$
-so
-$$\begin{align}
-\theta = \frac{1}{2} \arctan \frac{2 \mathbf{u} \cdot \mathbf{v}}{\mathbf{u} \cdot \mathbf{u} - \mathbf{v} \cdot \mathbf{v}}.\label{final}
+\log(f(\mathbf{a}) + \lVert \nabla f(\mathbf{a}) \rVert) - \log{f(\mathbf{a})} \geq \log t. \label{log_expression}
 \end{align}$$
 
-Let $$\theta^*$$ be a solution of \eqref{final}. We can see from \eqref{two_theta} and recalling that $$\tan$$ has a periodicity of $$\pi$$ that $$\theta^* + \frac{\pi}{2}$$ is also a solution. If these solutions are not equal, then one of $$F(\theta^*)$$ and $$F(\theta^* + \frac{\pi}{2})$$ must be a minimum and the other maximum.
+The general idea for gradient based edge detetion is to threshold the gradient, i.e., to keep edgels $$\mathbf{a}$$ such that
+$$\begin{align}
+\lVert \nabla f(\mathbf{a}) \rVert \geq t'
+\end{align}$$
+for some threshold, or equivalently,
+$$\begin{align}
+( f(\mathbf{a}) + \lVert \nabla f(\mathbf{a}) \rVert ) - f(\mathbf{a}) \geq t'.\label{similar}
+\end{align}$$
+
+We observe that $$f(\mathbf{a}) + \lVert \nabla f(\mathbf{a}) \rVert$$ in \eqref{similar} is the same expression as the numerator in expression \eqref{fraction_form}, which as an (approximation) of an image intensity. Therefore the left hand side of \eqref{similar} corresponds to computing the gradient by taking the intensity difference between two nearby image locations. If we assume the image is gamma compressed using a gamma compression function $$g$$, we can rewrite \eqref{similar} as
+
+$$\begin{align}
+g(f(\mathbf{a}) + \lVert \nabla f(\mathbf{a}) \rVert)) - g(f(\mathbf{a}) \geq t'.
+\end{align}$$
+
+*Therefore expression \eqref{log_expression} (our light source intensity invariant thresholding) is the same as ``traditional'' gradient thresholding applied an image $$f$$ after $$\log$$ is used as a gamma compression function.*
+
+In fact, the $$\ln$$ is not too different from standard gamma compression functions, as show in the figure below. GIVE REF. CHANGE CURVE. 0-1, optimize log parameters. STILL NEEDS WORK.
+<figure>
+<center>
+  <img src="/assets/drawings/gamma_compression_curves.svg" alt="Gamma compression curves" style="width:70%;">
+</center>
+<figcaption>Fig. 3. Gamma compression curves.
+</figcaption>
+</figure>
+<p></p>
 
 
+There are (at least) two problems with the $$\log$$ function in expression \eqref{log_expression}:
+- $$\lim_{x \to 0^+}\log x=-\infty$$. We would prefer not to have to work with large negative values. We can simply add replace $$f(x)$$ with $$c \cdot f(x) + 1$$, for some sufficiently large $$c$$, if we are willing to accept a very small amount of distortion.
+- Images have noise, especially at low intensities. A small amount of noise $$n$$ can result in a large change of the value of $$\log(x + n)$$ when $$x$$ is small. To make sure noise does not produces fake edgels, we would like to have a larger threshold for smaller values of $$x$$.
+
+
+We observe the follwing:
+- Gamma compression is similar to taking the log of the image, although instead of taking the $$\log$$ the image pixel intensities, they are raised to some power (e.g., $$\frac{1}{2.4}$$). Therefore thresholding the gradients of a gamma compressed image should result in better light source strength intensity invariance than thresholding the gradients in a linear image. However, computing gradient directions from a gamma compressed image are distorted. Assuming the linear values are in the interval $$[0, 100]$$, we plot gamma compression and the natural logarithm function, $$\ln$$ in Figure 3. Note how close $$\ln x$$ is to $$x^\frac{1}{3}$$.
+
+
+#### Fechner's law and Steven's law in human vision
+
+We observe a similarity between how humans perceive brightness as a function of light intensity and the light source intensity invariant thresholding above. Fechner's law in psychophysics states that $$\psi(I) = k \log I$$, where $$\psi$$ is the perceived magnitude of a sensation, $$k$$ is a constant, and $$I$$ is stimulus intensity. Applied to light, $$\psi$$ is perceived brightness, $$k$$ is a constant specific to human vision, and $$I$$ is light intensity. If we accept that Fechner's law holds approximately, then the question arises whether the phenomenon described by Fechner's law has anything to do with humans having vision that is highly invariant with respect to light intensity.
+
+We note that Stevens' power law is often considered to better describe the relation between perceived magnitude of a sensation and stimuls intensity. It states that $$\psi(I)=cI^{a}$$, where $$\psi$$ and $$I$$ are the same as before, $$c$$ is a proportionality constant that depends on the units used, and, $$a$$ is an exponent that depends on the type of stimulation or sensory modality. For vision under certain viewing conditions, $$a$$ can be set $$0.33$$. If we set $$k = 1$$, then the curve from Stevens' power law is the same gamma compression with exponent $$0.33$$, shown in the orange curve in Figure 3.
+
+
+### Generalization to 3-channel images
+
+Let $$f: \mathbf{R}^2 \rightarrow \mathbf{R}^3$$ be a $$3$$-channel image. We generalize expression \eqref{fraction_form} for vector valued $$f$$ as follows. We change the expression
+$$\begin{align}
+\frac{f(\mathbf{a}) + \lVert \nabla f(\mathbf{a}) \rVert}{f(\mathbf{a})}\label{fraction_again}
+\end{align}
+$$
+to
+$$\begin{align}
+\frac{\lVert f(\mathbf{a}) \rVert + \sqrt{F(\theta^*_\mathbf{a})}}{\lVert f(\mathbf{a}) \rVert},\label{general}
+\end{align}
+$$
+where $$\theta^*_\mathbf{a}$$ is the angle at $$\mathbf{a}$$ that maximizes $$F$$. It is not hard to verify that expression \eqref{general} is equivalent to \eqref{fraction_again} for single channel images.
+
+
+### Neighborhoods
+<figure>
+<center>
+    <video width="80%" muted autoplay loop poster preload controls>
+        <source src="../assets/animations/neighborhood_pixels_by_angle.mp4" type="video/mp4">
+    </video>
+</center>
+<figcaption>Fig. 4.
+</figcaption>
+</figure>
 
 
 ### To be continued...
 
 
+
+
+
+<!-- At the center of each pixel, we compute and record
+- the direction $$\theta^*$$ of maximum color change, and the
+- the magnitude of the color change, which we define as $$\sqrt{F(\theta^*)}$$.
+
+We take the square root because we used squared color differences in $$F$$ and we want linear color differences.
+
+Similarly to other edge detectors, we will threshold color differences based on magnitude. However, it would be nice to get some sort of invariance with respect to illumination strength. If $$f$$ is our image function and light gets $$\alpha$$ times stronger, then $$f$$ becomes $$\alpha f$$ (note that this holds only for *linear color spaces, i.e., when gamma compression is not applied*).  -->
 
 
 
