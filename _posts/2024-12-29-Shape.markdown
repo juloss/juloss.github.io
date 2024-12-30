@@ -1,0 +1,20 @@
+---
+layout: post
+title:  "Automatic Shape Matching"
+published: true
+date: 2024-12-29 17:45:33 -0500
+categories: projects
+permalink: /shape/
+image1: /assets/images/stop_sign_view_0.png
+image2: /assets/images/stop_sign_view_2.png
+---
+
+The goal of this project is to investigate a new approach to shape matching. In short, our objective is to compare two contours, **C1** and **C2**, both of which can be curves (open or closed). **C1** is a template we want to match in an image—here, it is a hand-drawn contour. **C2** is a contour extracted from an image by an automated process. In this example, we use the [Segment Anything Model (SAM)](https://segment-anything.com) to obtain a mask, and then simply use OpenCV to trace a contour around that mask. 
+
+Below is an example of this approach:
+
+Full process:
+![Stop sign]({{ page.image1 }}){:.centered}{:width="100%"}
+
+Zoomed in so we can see the matches more clearly:
+![Stop sign]({{ page.image2 }}){:.centered}{:width="100%"}

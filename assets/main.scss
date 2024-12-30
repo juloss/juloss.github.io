@@ -1,5 +1,11 @@
 ---
-# Only the main Sass file needs front matter (the dashes are enough)
 ---
 
 @import "minima";
+
+/* Custom Styles to Increase Site Width */
+.wrapper {
+  max-width: 1200px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
