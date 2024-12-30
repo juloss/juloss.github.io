@@ -3,9 +3,33 @@
 
 @import "minima";
 
+
 /* Custom Styles to Increase Site Width */
 .wrapper {
   max-width: 1800px;
   padding-left: 20px;
   padding-right: 20px;
+}
+
+/* Indent for Projects list */
+.post-list {
+  padding-left: 20px; /* Adjust the value as needed */
+}
+
+.post-list li {
+  margin-left: 10px; /* Optional: Additional indentation for list items */
+}
+
+/* Optional: Customize list-style (e.g., bullets) */
+.post-list {
+  list-style-type: disc; /* Options: disc, circle, square, none */
+}
+
+/* Ensure consistency with Publications list if applicable */
+.publications-list {
+  padding-left: 20px; /* Match with .post-list if you have a publications list */
+}
+
+.publications-list li {
+  margin-left: 10px;
 }

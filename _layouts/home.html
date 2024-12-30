@@ -2,7 +2,8 @@
 layout: default
 ---
 
-<!-- <div class="home">
+<!-- Uncommented Existing Code -->
+<div class="home">
   {%- if page.title -%}
     <h1 class="page-heading">{{ page.title }}</h1>
   {%- endif -%}
@@ -12,36 +13,35 @@ layout: default
   {%- if site.posts.size > 0 -%}
     <h2 class="page-heading">{{ page.list_title | default: "Projects" }}</h2>
     <ul class="post-list">
+      {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
       {%- for post in site.posts -%}
-      <li>
-        {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
-        <span class="post-meta">{{ post.date | date: date_format }}</span>
-        <h3>
-          <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}
-          </a>
-        </h3>
-        {%- if site.show_excerpts -%}
-          {{ post.excerpt }}
-        {%- endif -%}
-      </li>
+        <li>
+          <span class="post-meta">{{ post.date | date: date_format }}</span>
+          <h3>
+            <a class="post-link" href="{{ post.url | relative_url }}">
+              {{ post.title | escape }}
+            </a>
+          </h3>
+          {%- if site.show_excerpts -%}
+            {{ post.excerpt }}
+          {%- endif -%}
+        </li>
       {%- endfor -%}
     </ul>
-    
   {%- endif -%}
+</div> 
 
-</div> -->
+<!-- Existing Commented-Out Code (Retained for Reference) -->
+<!-- 
+{%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+<li><a href="{{ post.url }}">{{ post.title }} (<span class="post-meta">{{ post.date | date: date_format }}</span>)</a></li> 
+-->
 
-<!-- {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
-<li><a href="{{ post.url }}">{{ post.title }} (<span class="post-meta">{{ post.date | date: date_format }}</span>)</a></li> -->
-            
-{% for category in site.categories %}
-  <h1 class="capitalized-post-list-heading">{{ category | first }}</h1>
-  <ul>
-    {% for post in site.posts %}
-      {% if post.categories[0] == category[0] %}
-        <li><a href="{{ post.url }}">{{ post.title }}</a> (<span class="post-meta">{{ post.date | date: date_format }}</span>)</li>
-      {% endif %}
-      {% endfor %}
-  </ul>
-{% endfor %}
+<!-- Publications Section -->
+<h2 class="page-heading publications-heading">Publications (not comprehensive)</h2>
+<h3>
+  Most of my publications are listed on
+  <a href="https://dblp.org/pid/02/6401.html" target="_blank" rel="noopener noreferrer">
+    DBLP
+  </a>, but not all.
+</h3>
